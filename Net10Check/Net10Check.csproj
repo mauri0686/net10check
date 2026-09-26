@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RollForward>Major</RollForward>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>net10-check</ToolCommandName>
+    <PackageId>Net10Check</PackageId>
+    <PackageProjectUrl>https://mauri0686.github.io/onlts/</PackageProjectUrl>
+    <Version>0.1.0</Version>
+    <Authors>OnLTS</Authors>
+    <Description>Scans a .NET solution and tells you in seconds what blocks the move to .NET 10: target frameworks reaching end of support on 2026-11-10, NuGet packages to update (deprecated, vulnerable, without .NET 10 support) and a curated list of .NET 10 breaking changes found in your code and project files.</Description>
+    <PackageTags>dotnet10;net10;upgrade;migration;end-of-life;eol;nuget;audit;dotnet-tool</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)../nupkg</PackageOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>

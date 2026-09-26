@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <AppTfm>net9.0</AppTfm>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>
