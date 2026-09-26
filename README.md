@@ -20,7 +20,7 @@ It runs on any machine with the .NET 8, 9 or 10 SDK. It never builds or changes 
   - deprecated packages and versions with known vulnerabilities
   - packages with no version that supports modern .NET (blocker)
   - packages whose newest release still pins EF Core, ASP.NET Core or Microsoft.Extensions below 10.x, like an EF Core provider without a 10.x release (blocker)
-- **A short list of .NET 10 breaking changes** that a text search finds reliably, each linked to the official Microsoft docs:
+- **A short list of .NET 10 breaking changes and retired Microsoft libraries** that a text search finds reliably, each linked to the official docs:
 
 | Id | What |
 |---|---|
@@ -33,6 +33,11 @@ It runs on any machine with the .NET 8, 9 or 10 SDK. It never builds or changes 
 | SYSLIB0060 | `Rfc2898DeriveBytes` constructors obsolete |
 | OPENAPI2 | OpenAPI.NET 2.0 (`Microsoft.OpenApi.Models`, `OpenApiAny`) used by Microsoft.AspNetCore.OpenApi 10 and Swashbuckle 10 |
 | EF10-SETTERS | `ExecuteUpdate` setters built as expression trees no longer compile |
+| BINARYFORMATTER | `BinaryFormatter` always throws `PlatformNotSupportedException` since .NET 9 |
+| FUNCTIONS-INPROC | Azure Functions in-process model (`Microsoft.NET.Sdk.Functions` without `Microsoft.Azure.Functions.Worker`): no .NET 10, support ends 2026-11-10 |
+| AZURE-SB-LEGACY | `Microsoft.Azure.ServiceBus` / `WindowsAzure.ServiceBus` retired on 2026-09-30: use `Azure.Messaging.ServiceBus` |
+| AZURE-EH-LEGACY | `Microsoft.Azure.EventHubs` obsolete since 2025-12-31: use `Azure.Messaging.EventHubs` |
+| SQLCLIENT | `System.Data.SqlClient` deprecated, not supported on .NET 9+: use `Microsoft.Data.SqlClient` |
 | EF10-TOOLS | `dotnet ef` needs `--framework` on multi-targeted projects |
 | NU1015 | `PackageReference` without a version is now an error |
 | LINQ-ASYNC | `System.Linq.Async` clashes with the new built-in `System.Linq.AsyncEnumerable` |

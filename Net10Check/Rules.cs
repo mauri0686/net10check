@@ -47,6 +47,10 @@ public static class Rules
             "EF Core 10 takes a plain lambda for ExecuteUpdate setters; code that builds Expression<Func<SetPropertyCalls<T>, ...>> no longer compiles.",
             "https://learn.microsoft.com/ef/core/what-is-new/ef-core-10.0/breaking-changes",
             @"\bSetPropertyCalls\s*<"),
+        Code("BINARYFORMATTER", "BinaryFormatter always throws PlatformNotSupportedException since .NET 9", Severity.Blocker,
+            "Move to System.Text.Json, DataContractSerializer, MessagePack or protobuf-net (NrbfDecoder reads old payloads). The System.Runtime.Serialization.Formatters package restores it, unsupported.",
+            Core + "serialization/9.0/binaryformatter-removal",
+            @"\bBinaryFormatter\b"),
     ];
 
     public static List<RuleHit> Scan(string root, List<ProjectInfo> projects)
@@ -114,6 +118,28 @@ public static class Rules
             if (p.Properties.ContainsKey("BlazorCacheBootResources"))
                 Add("BLAZOR-CACHE", "BlazorCacheBootResources no longer has any effect", Severity.Review,
                     "Remove the property.", "https://learn.microsoft.com/aspnet/core/migration/90-to-100", where);
+
+            // In-process always references Microsoft.NET.Sdk.Functions; isolated projects reference Microsoft.Azure.Functions.Worker.
+            if ((Has("Microsoft.NET.Sdk.Functions") || p.Properties.ContainsKey("AzureFunctionsVersion"))
+                && !p.Packages.Any(x => x.Id.StartsWith("Microsoft.Azure.Functions.Worker", StringComparison.OrdinalIgnoreCase)))
+                Add("FUNCTIONS-INPROC", "Azure Functions in-process model: no .NET 10, support ends 2026-11-10", Severity.Blocker,
+                    "The in-process model only runs on .NET 8. Migrate to the isolated worker model (Microsoft.Azure.Functions.Worker), then target net10.0.",
+                    "https://learn.microsoft.com/azure/azure-functions/migrate-dotnet-to-isolated-model", where);
+
+            foreach (var id in new[] { "Microsoft.Azure.ServiceBus", "WindowsAzure.ServiceBus" }.Where(Has))
+                Add("AZURE-SB-LEGACY", "Legacy Azure Service Bus SDK retired on 2026-09-30", Severity.Blocker,
+                    "No more support or fixes, and SBMP stops working. Move to Azure.Messaging.ServiceBus (Event Hubs: Azure.Messaging.EventHubs). WindowsAzure.ServiceBus used only for WCF Relay is still supported.",
+                    "https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/servicebus/Azure.Messaging.ServiceBus/MigrationGuide.md", $"{where} ({id})");
+
+            foreach (var id in new[] { "Microsoft.Azure.EventHubs", "Microsoft.Azure.EventHubs.Processor" }.Where(Has))
+                Add("AZURE-EH-LEGACY", "Legacy Azure Event Hubs SDK is obsolete since 2025-12-31", Severity.Blocker,
+                    "No longer maintained. Move to Azure.Messaging.EventHubs (and Azure.Messaging.EventHubs.Processor).",
+                    "https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/eventhub/Azure.Messaging.EventHubs/MigrationGuide.md", $"{where} ({id})");
+
+            if (Has("System.Data.SqlClient"))
+                Add("SQLCLIENT", "System.Data.SqlClient is deprecated and not supported on .NET 9+", Severity.Warning,
+                    "Move to Microsoft.Data.SqlClient (mostly a namespace change; Encrypt defaults to true).",
+                    "https://github.com/dotnet/announcements/issues/322", where);
 
             if (p.Tfms.Count > 1 && (Has("Microsoft.EntityFrameworkCore.Design") || Has("Microsoft.EntityFrameworkCore.Tools")))
                 Add("EF10-TOOLS", "dotnet ef needs --framework on multi-targeted projects", Severity.Warning,

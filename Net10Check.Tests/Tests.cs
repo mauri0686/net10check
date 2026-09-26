@@ -87,6 +87,21 @@ public class ScannerTests
     }
 
     [Fact]
+    public void Azure_and_serialization_rules()
+    {
+        var hits = Rules.Scan(Fixture("azure"), [ProjectScanner.Load(Fixture("azure/InProc/InProc.csproj")),
+                                                 ProjectScanner.Load(Fixture("azure/Isolated/Isolated.csproj"))]);
+        // isolated worker project (AzureFunctionsVersion + Worker packages) is not flagged
+        Assert.Equal(["InProc/InProc.csproj"], hits.Single(h => h.Id == "FUNCTIONS-INPROC").Locations);
+        Assert.Equal(["InProc/InProc.csproj (Microsoft.Azure.ServiceBus)"], hits.Single(h => h.Id == "AZURE-SB-LEGACY").Locations);
+        Assert.Equal(["InProc/InProc.csproj (Microsoft.Azure.EventHubs)"], hits.Single(h => h.Id == "AZURE-EH-LEGACY").Locations);
+        Assert.Equal(["InProc/InProc.csproj"], hits.Single(h => h.Id == "SQLCLIENT").Locations);
+        // the using line and the commented line do not count
+        Assert.Equal(["InProc/Cache.cs:5"], hits.Single(h => h.Id == "BINARYFORMATTER").Locations);
+        Assert.All(hits.Where(h => h.Id != "SQLCLIENT"), h => Assert.Equal(Severity.Blocker, h.Severity));
+    }
+
+    [Fact]
     public async Task End_to_end_offline_summary()
     {
         var (root, paths) = ProjectScanner.Discover(Fixture("Fixtures.sln"));
