@@ -1,5 +1,7 @@
 # net10-check
 
+[![NuGet](https://img.shields.io/nuget/v/Net10Check.svg)](https://www.nuget.org/packages/Net10Check) [![Downloads](https://img.shields.io/nuget/dt/Net10Check.svg)](https://www.nuget.org/packages/Net10Check)
+
 .NET 8 and .NET 9 both reach end of support on **November 10, 2026**. `net10-check` scans your solution and tells you, in a few seconds, what stands between it and .NET 10.
 
 ```
@@ -60,8 +62,22 @@ net10-check [path] [--format console|md|json] [-o|--output file] [--offline] [--
 - `--offline` skips nuget.org.
 - `--fail-on-eol` exits with code 1 when a project targets a framework that is out of support by 2026-11-10. Handy in CI.
 
+## Use it in CI
+
+Fail the build while any project still targets a framework that loses support on 2026-11-10 (GitHub Actions example):
+
+```yaml
+- uses: actions/setup-dotnet@v4
+  with:
+    dotnet-version: '8.0.x'
+- run: dotnet tool install -g Net10Check
+- run: net10-check --fail-on-eol --format md --output net10-report.md
+```
+
 ## Limits
 
 The scan reads project files as XML; it does not run MSBuild. Conditions are mostly ignored, private feeds are not queried, and transitive packages are not listed. Breaking changes that only show up at runtime are not detected: run your tests on .NET 10.
+
+If the report is long and you would rather hand the upgrade off, fixed-price .NET 10 upgrades are available at [OnLTS](https://mauri0686.github.io/onlts/).
 
 License: MIT
